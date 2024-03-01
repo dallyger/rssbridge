@@ -1,7 +1,7 @@
 package main
 
 import (
-	shopware "dallyger/rssbridge/internal/processing"
+	shopware "dallyger/rssbridge/internal/processing/shopware"
 	"fmt"
 	"log"
 	"strings"
