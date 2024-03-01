@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/gocolly/colly"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/feeds"
 )
 
@@ -17,17 +19,43 @@ type Item struct {
 }
 
 func main() {
-	feed, err := shopware_store_plugin("swag136939272659f/shopware-6-sicherheits-plugin.html")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	json, err := feed.ToJSON()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	fmt.Println(json)
+	app := fiber.New()
+
+	// TODO: Add rate limiting or caching or something to prevent (D)DoS'ing.
+
+	app.Get("/store.shopware.com/:plugin.:ext", func (c *fiber.Ctx) error {
+		plugin := c.Params("plugin")
+		feed_type := strings.ToLower(c.Params("ext"))
+
+		feed, err := shopware_store_plugin(plugin)
+		if err != nil {
+			log.Fatal(err)
+			return c.SendStatus(500)
+		}
+
+		var response string
+		var feed_err error
+		switch feed_type {
+			case "atom":
+			response, feed_err = feed.ToAtom()
+			case "rss":
+			response, feed_err = feed.ToRss()
+			case "json":
+			response, feed_err = feed.ToJSON()
+			default:
+			c.SendStatus(404)
+		}
+
+		if feed_err != nil {
+			log.Fatal(err)
+			return c.SendStatus(500)
+		}
+
+		return c.SendString(response)
+	})
+
+	log.Fatal(app.Listen(":3000"))
+
 }
 
 func shopware_store_plugin(id string) (*feeds.Feed, error) {
