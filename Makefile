@@ -1,4 +1,5 @@
-.PHONY=build
+build: ## Build binaries
+	go build -o ./bin/rssbridge ./cmd/rssbridge
 do-build: ## Build docker image
 	docker build -t dallyger/rssbridge:nightly .
 do-run: ## Run docker image
