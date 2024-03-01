@@ -23,8 +23,8 @@ func main() {
 
 	// TODO: Add rate limiting or caching or something to prevent (D)DoS'ing.
 
-	app.Get("/store.shopware.com/:plugin.:ext", func (c *fiber.Ctx) error {
-		plugin := c.Params("plugin")
+	app.Get("/store.shopware.com/:plugin.:plugin_ext.:ext", func (c *fiber.Ctx) error {
+		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), c.Params("plugin_ext"))
 		feed_type := strings.ToLower(c.Params("ext"))
 
 		feed, err := shopware_store_plugin(plugin)
