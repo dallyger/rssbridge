@@ -7,6 +7,7 @@ import (
 
 	"github.com/gocolly/colly"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gorilla/feeds"
 )
 
@@ -20,6 +21,9 @@ type Item struct {
 
 func main() {
 	app := fiber.New()
+
+	// Log incoming requests
+	app.Use(logger.New())
 
 	// TODO: Add rate limiting or caching or something to prevent (D)DoS'ing.
 
