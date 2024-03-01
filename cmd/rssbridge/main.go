@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gorilla/feeds"
 )
 
 type Item struct {
@@ -32,11 +33,24 @@ func main() {
 		})
 	})
 
-	app.Get("/store.shopware.com/:plugin.:plugin_ext.:ext", func (c *fiber.Ctx) error {
-		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), c.Params("plugin_ext"))
-		feed_type := strings.ToLower(c.Params("ext"))
+	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), "html")
+		return shopware.StorePluginChangelog(plugin)
+	}))
 
-		feed, err := shopware.StorePluginChangelog(plugin)
+	app.Get("/store.shopware.com/:plugin.html.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), "html")
+		return shopware.StorePluginChangelog(plugin)
+	}))
+
+	log.Fatal(app.Listen(":3000"))
+}
+
+func createFeedResponse(handler func(c *fiber.Ctx) (*feeds.Feed, error) ) func(c *fiber.Ctx) error {
+	return func (c *fiber.Ctx) error {
+		feed_type := strings.ToLower(c.Params("ext", "rss"))
+		feed, err := handler(c)
+
 		if err != nil {
 			log.Fatal(err)
 			return c.SendStatus(500)
@@ -44,6 +58,7 @@ func main() {
 
 		var response string
 		var feed_err error
+
 		switch feed_type {
 			case "atom":
 			response, feed_err = feed.ToAtom()
@@ -61,10 +76,7 @@ func main() {
 		}
 
 		return c.SendString(response)
-	})
-
-	log.Fatal(app.Listen(":3000"))
-
+	}
 }
 
 // vim: noexpandtab
