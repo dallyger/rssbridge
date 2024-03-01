@@ -1,6 +1,7 @@
 package main
 
 import (
+	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
 	shopware "dallyger/rssbridge/internal/processing/shopware"
 	"fmt"
 	"log"
@@ -32,6 +33,16 @@ func main() {
 			"status": "ok",
 		})
 	})
+
+	app.Get("/kleinanzeigen.de", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		query := c.Query("query")
+		return kleinanzeigen.Search(query)
+	}))
+
+	app.Get("/kleinanzeigen.de.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		query := c.Query("query")
+		return kleinanzeigen.Search(query)
+	}))
 
 	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
 		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), "html")
