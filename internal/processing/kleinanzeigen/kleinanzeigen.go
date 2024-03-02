@@ -3,6 +3,7 @@ package kleinanzeigen
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
@@ -26,8 +27,8 @@ func Search(search string) (*feeds.Feed, error) {
 	c.OnHTML("meta[itemprop=\"copyrightHolder\"]", func(h *colly.HTMLElement) {
 		feed.Copyright = h.Attr("content")
 	});
-	c.OnHTML("meta[property=\"og:title\"]", func(h *colly.HTMLElement) {
-		feed.Title = h.Attr("content")
+	c.OnHTML("title", func(h *colly.HTMLElement) {
+		feed.Title = h.Text
 	});
 	c.OnHTML("meta[property=\"og:description\"]", func(h *colly.HTMLElement) {
 		feed.Description = h.Attr("content")
@@ -42,11 +43,28 @@ func Search(search string) (*feeds.Feed, error) {
 
 	c.OnHTML("article.aditem", func(h *colly.HTMLElement) {
 		itemHref := fmt.Sprintf("https://www.kleinanzeigen.de/%s", h.Attr("data-href"))
+		title := strings.TrimSpace(h.DOM.Find("a.ellipsis").First().Text())
+		price := strings.TrimSpace(h.DOM.Find("p.aditem-main--middle--price-shipping--price").First().Text())
+		if price != "" {
+			title = fmt.Sprintf("[%s] %s", price, title)
+		}
+
+		date := strings.TrimSpace(h.DOM.Find(".icon-calendar-open").Parent().Text())
+		var created time.Time
+		if strings.HasPrefix(date, "Heute") || strings.HasPrefix(date, "Gestern") {
+			created, _ = time.Parse("15:04", strings.SplitN(date, " ", 2)[1])
+			created = created.AddDate(time.Now().Year(), int(time.Now().Month()) - 1, time.Now().Day() - 1)
+		} else {
+			created, _ = time.Parse("02.01.2006", date)
+		}
+
 		feed.Items = append(feed.Items, &feeds.Item{
 			Id: h.Attr("data-adid"),
-			Title: h.DOM.Find("a.ellipsis").First().Text(),
+			Title: title,
 			Link: &feeds.Link{Href: itemHref},
 			Description: h.DOM.Find("p.aditem-main--middle--description").First().Text(),
+			Created: created,
+			Updated: created,
 		})
 	});
 
