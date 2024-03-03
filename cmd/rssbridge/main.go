@@ -5,6 +5,7 @@ import (
 	shopware "dallyger/rssbridge/internal/processing/shopware"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +22,11 @@ type Item struct {
 }
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ProxyHeader: fiber.HeaderXForwardedFor,
+		EnableTrustedProxyCheck: true,
+		TrustedProxies: strings.Split(os.Getenv("TRUSTED_PROXIES"), ";"),
+	})
 
 	// Log incoming requests
 	app.Use(logger.New())
