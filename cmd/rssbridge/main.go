@@ -29,7 +29,9 @@ func main() {
 	})
 
 	// Log incoming requests
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		Format: "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path} | ${ua} | ${error}\n",
+	}))
 
 	// TODO: Add rate limiting or caching or something to prevent (D)DoS'ing.
 
