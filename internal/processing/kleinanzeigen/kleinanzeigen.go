@@ -2,6 +2,7 @@ package kleinanzeigen
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -58,6 +59,22 @@ func Search(search string) (*feeds.Feed, error) {
 			created, _ = time.Parse("02.01.2006", date)
 		}
 
+		enclosure := &feeds.Enclosure{}
+		imgSrcset, hasImgSrcset := h.DOM.Find("img[srcset]").First().Attr("srcset")
+		if hasImgSrcset {
+			resp, err := http.Get(imgSrcset)
+			if err == nil {
+				defer resp.Body.Close()
+				enclosure = &feeds.Enclosure{
+					Url: imgSrcset,
+					Type: resp.Header.Get("Content-Type"),
+					Length: resp.Header.Get("Content-Length"),
+				}
+			} else {
+				// TODO: handle error while loading image
+			}
+		}
+
 		feed.Items = append(feed.Items, &feeds.Item{
 			Id: h.Attr("data-adid"),
 			Title: title,
@@ -65,6 +82,7 @@ func Search(search string) (*feeds.Feed, error) {
 			Description: h.DOM.Find("p.aditem-main--middle--description").First().Text(),
 			Created: created,
 			Updated: created,
+			Enclosure: enclosure,
 		})
 	});
 
