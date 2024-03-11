@@ -2,7 +2,6 @@ package kleinanzeigen
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -45,6 +44,7 @@ func Search(search string) (*feeds.Feed, error) {
 	c.OnHTML("article.aditem", func(h *colly.HTMLElement) {
 		itemHref := fmt.Sprintf("https://www.kleinanzeigen.de/%s", h.Attr("data-href"))
 		title := strings.TrimSpace(h.DOM.Find("a.ellipsis").First().Text())
+		description := h.DOM.Find("p.aditem-main--middle--description").First().Text()
 		price := strings.TrimSpace(h.DOM.Find("p.aditem-main--middle--price-shipping--price").First().Text())
 		if price != "" {
 			title = fmt.Sprintf("[%s] %s", price, title)
@@ -59,30 +59,22 @@ func Search(search string) (*feeds.Feed, error) {
 			created, _ = time.Parse("02.01.2006", date)
 		}
 
-		enclosure := &feeds.Enclosure{}
 		imgSrcset, hasImgSrcset := h.DOM.Find("img[srcset]").First().Attr("srcset")
 		if hasImgSrcset {
-			resp, err := http.Get(imgSrcset)
-			if err == nil {
-				defer resp.Body.Close()
-				enclosure = &feeds.Enclosure{
-					Url: imgSrcset,
-					Type: resp.Header.Get("Content-Type"),
-					Length: resp.Header.Get("Content-Length"),
-				}
-			} else {
-				// TODO: handle error while loading image
-			}
+			description = fmt.Sprintf(
+				"<p><img src=\"%s\"> %s</p>",
+				imgSrcset,
+				description,
+			)
 		}
 
 		feed.Items = append(feed.Items, &feeds.Item{
 			Id: h.Attr("data-adid"),
 			Title: title,
 			Link: &feeds.Link{Href: itemHref},
-			Description: h.DOM.Find("p.aditem-main--middle--description").First().Text(),
+			Description: description,
 			Created: created,
 			Updated: created,
-			Enclosure: enclosure,
 		})
 	});
 
