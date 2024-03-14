@@ -9,7 +9,7 @@ import (
 )
 
 func StorePluginChangelog(id string) (*feeds.Feed, error) {
-	url := fmt.Sprintf("https://store.shopware.com/%s", id)
+	url := fmt.Sprintf("https://store.shopware.com/search?sSearch=%s", id)
 	feed := &feeds.Feed{}
 
 	c := colly.NewCollector(

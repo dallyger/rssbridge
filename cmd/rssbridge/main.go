@@ -3,7 +3,6 @@ package main
 import (
 	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
 	shopware "dallyger/rssbridge/internal/processing/shopware"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -51,14 +50,19 @@ func main() {
 		return kleinanzeigen.Search(query)
 	}))
 
+	// example: /store.shopware.com/swag136939272659f.rss
 	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
-		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), "html")
-		return shopware.StorePluginChangelog(plugin)
+		return shopware.StorePluginChangelog(c.Params("plugin"))
 	}))
 
-	app.Get("/store.shopware.com/:plugin.html.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
-		plugin := fmt.Sprintf("%s.%s", c.Params("plugin"), "html")
-		return shopware.StorePluginChangelog(plugin)
+	// example: /store.shopware.com/swag136939272659f/shopware-6-sicherheits-plugin.html.rss
+	app.Get("/store.shopware.com/:plugin/:slug.html.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		return shopware.StorePluginChangelog(c.Params("plugin"))
+	}))
+
+	// example: /store.shopware.com/swag136939272659f/shopware-6-sicherheits-plugin.rss
+	app.Get("/store.shopware.com/:plugin/:slug.:ext", createFeedResponse(func (c *fiber.Ctx) (*feeds.Feed, error) {
+		return shopware.StorePluginChangelog(c.Params("plugin"))
 	}))
 
 	log.Fatal(app.Listen(":3000"))
@@ -67,6 +71,10 @@ func main() {
 func createFeedResponse(handler func(c *fiber.Ctx) (*feeds.Feed, error) ) func(c *fiber.Ctx) error {
 	return func (c *fiber.Ctx) error {
 		feed_type := strings.ToLower(c.Params("ext", "rss"))
+		if len(feed_type) > 4 {
+			feed_type = feed_type[len(feed_type)-4:]
+			feed_type = strings.TrimLeft(feed_type, ".")
+		}
 		feed, err := handler(c)
 
 		if err != nil {
