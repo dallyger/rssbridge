@@ -54,13 +54,6 @@ func main() {
 		}),
 	)
 
-	// example: /store.shopware.com/swag136939272659f.rss
-	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(
-		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
-			return shopware.StorePluginChangelog(c.Params("plugin"), ctx)
-		}),
-	)
-
 	// example: /store.shopware.com/swag136939272659f/shopware-6-sicherheits-plugin.html.rss
 	app.Get("/store.shopware.com/:plugin/:slug.html.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
@@ -70,6 +63,13 @@ func main() {
 
 	// example: /store.shopware.com/swag136939272659f/shopware-6-sicherheits-plugin.rss
 	app.Get("/store.shopware.com/:plugin/:slug.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return shopware.StorePluginChangelog(c.Params("plugin"), ctx)
+		}),
+	)
+
+	// example: /store.shopware.com/swag136939272659f.rss
+	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			return shopware.StorePluginChangelog(c.Params("plugin"), ctx)
 		}),
