@@ -12,6 +12,7 @@ import (
 )
 
 func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+	var feedErr error
 	feed := &feeds.Feed{}
 	uri := &url.URL{
 		Scheme: "https",
@@ -41,6 +42,9 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)
 		r.Headers.Set("X-Forwarded-Host", ctx.InboundHost)
 		r.Headers.Set("X-Forwarded-Proto", ctx.InboundProto)
+	})
+	c.OnError(func(r *colly.Response, err error) {
+		feedErr = err
 	})
 
 	c.OnHTML("meta[name=\"author\"]", func(h *colly.HTMLElement) {
@@ -112,7 +116,7 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 
 	c.Visit(uri.String());
 
-	return feed, nil
+	return feed, feedErr
 
 }
 
