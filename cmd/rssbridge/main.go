@@ -30,6 +30,7 @@ func main() {
 	// Log incoming requests
 	app.Use(logger.New(logger.Config{
 		Format: "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path} | ${ua} | ${error}\n",
+		TimeFormat: "2006-01-02 15:04:05",
 	}))
 
 	// TODO: Add rate limiting or caching or something to prevent (D)DoS'ing.
