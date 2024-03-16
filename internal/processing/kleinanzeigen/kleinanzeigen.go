@@ -1,6 +1,7 @@
 package kleinanzeigen
 
 import (
+	"dallyger/rssbridge/internal/util"
 	"fmt"
 	"strings"
 	"time"
@@ -9,7 +10,7 @@ import (
 	"github.com/gorilla/feeds"
 )
 
-func Search(search string) (*feeds.Feed, error) {
+func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	url := fmt.Sprintf("https://www.kleinanzeigen.de/s-%s/k0", strings.ToLower(strings.ReplaceAll(search, " ", "-")))
 	feed := &feeds.Feed{}
 
@@ -17,6 +18,11 @@ func Search(search string) (*feeds.Feed, error) {
 		colly.AllowedDomains("www.kleinanzeigen.de", "kleinanzeigen.de"),
 		colly.UserAgent("dallyger/rssbridge"),
 	);
+	c.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)
+		r.Headers.Set("X-Forwarded-Host", ctx.InboundHost)
+		r.Headers.Set("X-Forwarded-Proto", ctx.InboundProto)
+	})
 
 	c.OnHTML("meta[name=\"author\"]", func(h *colly.HTMLElement) {
 		author := h.Attr("content")

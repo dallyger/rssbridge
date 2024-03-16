@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 
+	util "dallyger/rssbridge/internal/util"
+
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
 )
 
-func StorePluginChangelog(id string) (*feeds.Feed, error) {
+func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	url := fmt.Sprintf("https://store.shopware.com/search?sSearch=%s", id)
 	feed := &feeds.Feed{}
 
@@ -16,6 +18,12 @@ func StorePluginChangelog(id string) (*feeds.Feed, error) {
 		colly.AllowedDomains("store.shopware.com"),
 		colly.UserAgent("dallyger/rssbridge"),
 	);
+	c.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)
+		r.Headers.Set("X-Forwarded-Host", ctx.InboundHost)
+		r.Headers.Set("X-Forwarded-Proto", ctx.InboundProto)
+	})
+
 	c.OnHTML("meta[name=\"author\"]", func(h *colly.HTMLElement) {
 		author := h.Attr("content")
 		if author != "" {
