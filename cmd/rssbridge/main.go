@@ -100,7 +100,7 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 		feed, err := handler(c, ctx)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			return c.SendStatus(500)
 		}
 
@@ -119,7 +119,7 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 		}
 
 		if feed_err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			return c.SendStatus(500)
 		}
 
