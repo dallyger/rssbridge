@@ -33,7 +33,9 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.kleinanzeigen.de", "kleinanzeigen.de"),
-		colly.UserAgent(util.UserAgent()),
+		// Kleinanzeigen will close the connection if it encounters a link
+		// TODO: set version in UA
+		colly.UserAgent("Mozilla/5.0 (compatible; rssbridge/0.0.0)"),
 	);
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)
