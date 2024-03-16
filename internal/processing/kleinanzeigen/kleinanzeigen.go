@@ -3,6 +3,7 @@ package kleinanzeigen
 import (
 	"dallyger/rssbridge/internal/util"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -11,8 +12,24 @@ import (
 )
 
 func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
-	url := fmt.Sprintf("https://www.kleinanzeigen.de/s-%s/k0", strings.ToLower(strings.ReplaceAll(search, " ", "-")))
 	feed := &feeds.Feed{}
+	uri := &url.URL{
+		Scheme: "https",
+		Host: "www.kleinanzeigen.de",
+		Path: "s-suchanfrage.html",
+		RawQuery: url.Values {
+			"keywords": {search},
+			"categoryId": {""},
+			"locationStr": {""},
+			"locationId": {""},
+			"radius": {"0"},
+			"sortingField": {"SORTING_DATE"},
+			"pageNum": {"1"},
+			"action": {"find"},
+			"maxPrice": {""},
+			"minPrice": {""},
+		}.Encode(),
+	}
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.kleinanzeigen.de", "kleinanzeigen.de"),
@@ -40,7 +57,6 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		feed.Description = h.Attr("content")
 	});
 	c.OnHTML("meta[property=\"og:url\"]", func(h *colly.HTMLElement) {
-		url = h.Attr("content")
 		feed.Link = &feeds.Link{Href: h.Attr("content")}
 	});
 	c.OnHTML("meta[property=\"og:image\"]", func(h *colly.HTMLElement) {
@@ -92,7 +108,7 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		c.Visit(h.Request.AbsoluteURL(link))
 	})
 
-	c.Visit(url);
+	c.Visit(uri.String());
 
 	return feed, nil
 
