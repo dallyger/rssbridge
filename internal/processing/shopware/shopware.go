@@ -16,7 +16,7 @@ func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("store.shopware.com"),
-		colly.UserAgent("dallyger/rssbridge"),
+		colly.UserAgent(util.UserAgent()),
 	);
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)

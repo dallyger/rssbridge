@@ -16,7 +16,7 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.kleinanzeigen.de", "kleinanzeigen.de"),
-		colly.UserAgent("dallyger/rssbridge"),
+		colly.UserAgent(util.UserAgent()),
 	);
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("X-Forwarded-For", ctx.InboundIP)
