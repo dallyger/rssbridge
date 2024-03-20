@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dallyger/rssbridge/internal/processing/ebay"
 	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
 	shopware "dallyger/rssbridge/internal/processing/shopware"
 	"dallyger/rssbridge/internal/util"
@@ -41,6 +42,12 @@ func main() {
 			"status": "ok",
 		})
 	})
+
+	app.Get("/ebay.de.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return ebay.SearchDE(c.Query("query"), ctx)
+		}),
+	)
 
 	app.Get("/kleinanzeigen.de", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
