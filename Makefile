@@ -11,7 +11,13 @@ build: ## build binaries
 
 .PHONY: do-build
 do-build: build ## build docker image
-	docker build -t dallyger/rssbridge:nightly .
+	docker build \
+		--label "org.opencontainers.image.created=$(shell date -u +\"%Y-%m-%dT%H:%M:%SZ\")" \
+		--label "org.opencontainers.image.authors=$(shell git config user.name)" \
+		--label "org.opencontainers.image.source=$(shell git remote get-url origin)" \
+		--label "org.opencontainers.image.version=$(shell git describe --tags --always --dirty)" \
+		-t dallyger/rssbridge:nightly \
+		.
 
 .PHONY: do-run
 do-run: ## run docker image
