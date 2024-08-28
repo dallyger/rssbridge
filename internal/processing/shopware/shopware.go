@@ -12,7 +12,7 @@ import (
 
 func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	var feedErr error
-	url := fmt.Sprintf("https://store.shopware.com/search?sSearch=%s", id)
+	url := fmt.Sprintf("https://store.shopware.com/en/search?search=%s", id)
 	feed := &feeds.Feed{}
 
 	c := colly.NewCollector(
@@ -28,7 +28,7 @@ func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		feedErr = err
 	})
 
-	c.OnHTML("meta[name=\"author\"]", func(h *colly.HTMLElement) {
+	c.OnHTML("meta[property=\"product:brand\"]", func(h *colly.HTMLElement) {
 		author := h.Attr("content")
 		if author != "" {
 			feed.Author = &feeds.Author{Name: author}
@@ -50,7 +50,7 @@ func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	c.OnHTML("meta[property=\"og:image\"]", func(h *colly.HTMLElement) {
 		feed.Image = &feeds.Image{Link: h.Attr("content")}
 	});
-	c.OnHTML(".content--changelog h4", func(h *colly.HTMLElement) {
+	c.OnHTML("h3.changelogs-header", func(h *colly.HTMLElement) {
 		desc, err  :=  h.DOM.NextUntil("h4").Html()
 		if err != nil {
 			log.Fatal(err)
