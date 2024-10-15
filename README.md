@@ -22,7 +22,7 @@ hurl --variable base_url=http://localhost:3000 ./example/store.shopware.com-plug
 
 ## Setup
 
-Requirements: `go`,`make`, `docker` (optional)
+Requirements: `go`,`just`, `docker` (optional)
 
 Clone the project:
 
@@ -34,13 +34,13 @@ cd rssbridge
 Compile binaries and run it:
 
 ```
-make build && bin/rssbridge
+just build && bin/rssbridge
 ```
 
 Or use Docker:
 
 ```
-make do-build do-run
+just do-build do-run
 ```
 
 Tested on Linux. Windows is not supported. Use docker or WSL or something.
