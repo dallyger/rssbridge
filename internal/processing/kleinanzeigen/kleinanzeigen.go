@@ -57,7 +57,9 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		feed.Copyright = h.Attr("content")
 	});
 	c.OnHTML("title", func(h *colly.HTMLElement) {
-		feed.Title = h.Text
+		if feed.Title == "" {
+			feed.Title = h.Text
+		}
 	});
 	c.OnHTML("meta[property=\"og:description\"]", func(h *colly.HTMLElement) {
 		feed.Description = h.Attr("content")
