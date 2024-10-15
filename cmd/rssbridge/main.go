@@ -3,6 +3,7 @@ package main
 import (
 	"dallyger/rssbridge/internal/processing/ebay"
 	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
+	"dallyger/rssbridge/internal/processing/printables"
 	shopware "dallyger/rssbridge/internal/processing/shopware"
 	"dallyger/rssbridge/internal/util"
 	"log"
@@ -58,6 +59,18 @@ func main() {
 	app.Get("/kleinanzeigen.de.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			return kleinanzeigen.Search(c.Query("query"), ctx)
+		}),
+	)
+
+	app.Get("/printables.com/liked.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return printables.SearchModels("liked", ctx)
+		}),
+	)
+
+	app.Get("/printables.com/trending.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return printables.SearchModels("", ctx)
 		}),
 	)
 
