@@ -70,7 +70,7 @@ func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	});
 
 	c.OnHTML("article.aditem", func(h *colly.HTMLElement) {
-		itemHref := fmt.Sprintf("https://www.kleinanzeigen.de/%s", h.Attr("data-href"))
+		itemHref := fmt.Sprintf("https://www.kleinanzeigen.de%s", h.Attr("data-href"))
 		title := strings.TrimSpace(h.DOM.Find("a.ellipsis").First().Text())
 		description := h.DOM.Find("p.aditem-main--middle--description").First().Text()
 		price := strings.TrimSpace(h.DOM.Find("p.aditem-main--middle--price-shipping--price").First().Text())
