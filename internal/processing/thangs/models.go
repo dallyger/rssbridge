@@ -70,6 +70,26 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		}
 	})
 
+	// walk pagination
+	c.OnHTML("a", func(h *colly.HTMLElement) {
+		// The index page contains links for the first 4 pages. Those should be
+		// enough, because anything below should be not as relevant.
+
+		// ensure we're on the index page
+		if strings.Contains(h.Request.URL.Path, "page=") {
+			return
+		}
+
+		// ensure it's a pagination link
+		if !strings.Contains(h.DOM.AttrOr("class", ""), "PaginatorLink-") {
+			return
+		}
+
+		if lnk := h.DOM.AttrOr("href", ""); lnk != "" {
+			c.Visit(h.Request.AbsoluteURL(lnk))
+		}
+	})
+
 	c.OnHTML("section.model-card", func(h *colly.HTMLElement) {
 		title := h.DOM.Find("h4").First().Text()
 		desc, _ := h.DOM.Html()
