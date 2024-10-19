@@ -5,6 +5,7 @@ import (
 	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
 	"dallyger/rssbridge/internal/processing/printables"
 	shopware "dallyger/rssbridge/internal/processing/shopware"
+	"dallyger/rssbridge/internal/processing/thangs"
 	"dallyger/rssbridge/internal/util"
 	"log"
 	"os"
@@ -92,6 +93,30 @@ func main() {
 	app.Get("/store.shopware.com/:plugin.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			return shopware.StorePluginChangelog(c.Params("plugin"), ctx)
+		}),
+	)
+
+	app.Get("/thangs.com/downloads.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return thangs.Downloads(ctx)
+		}),
+	)
+
+	app.Get("/thangs.com/popular.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return thangs.Popular(ctx)
+		}),
+	)
+
+	app.Get("/thangs.com/recent.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return thangs.Recent(ctx)
+		}),
+	)
+
+	app.Get("/thangs.com/trending.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return thangs.Trending(ctx)
 		}),
 	)
 
