@@ -20,15 +20,21 @@ Or run them directly in the terminal using [Hurl](https://hurl.dev). Example:
 hurl --variable base_url=http://localhost:3000 ./example/store.shopware.com-plugin-changelog.hurl
 ```
 
-## Setup
+## Installation
+
+```sh
+go install vnbr.de/rssbridge@latest
+```
+
+## Build from source
 
 Requirements: `go`,`just`, `docker` (optional)
 
-Clone the project:
+Clone the project from one of the following locations:
 
 ```sh
-git clone https://github.com/dallyger/rssbridge
-cd rssbridge
+git clone https://codeberg.org/dallyger/rssbridge.git
+git clone https://github.com/dallyger/rssbridge.git
 ```
 
 Compile binaries and run it:
