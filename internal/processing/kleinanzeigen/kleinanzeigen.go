@@ -1,7 +1,6 @@
 package kleinanzeigen
 
 import (
-	"dallyger/rssbridge/internal/util"
 	"fmt"
 	"net/url"
 	"strings"
@@ -9,6 +8,8 @@ import (
 
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
+
+	"vnbr.de/rssbridge/internal/util"
 )
 
 func Search(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {

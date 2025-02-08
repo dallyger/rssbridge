@@ -1,13 +1,14 @@
 package ebay
 
 import (
-	"dallyger/rssbridge/internal/util"
 	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
+
+	"vnbr.de/rssbridge/internal/util"
 )
 
 func SearchDE(search string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	util "dallyger/rssbridge/internal/util"
-
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
+
+	util "vnbr.de/rssbridge/internal/util"
 )
 
 func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {

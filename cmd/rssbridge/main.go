@@ -1,12 +1,6 @@
 package main
 
 import (
-	"dallyger/rssbridge/internal/processing/ebay"
-	kleinanzeigen "dallyger/rssbridge/internal/processing/kleinanzeigen"
-	"dallyger/rssbridge/internal/processing/printables"
-	shopware "dallyger/rssbridge/internal/processing/shopware"
-	"dallyger/rssbridge/internal/processing/thangs"
-	"dallyger/rssbridge/internal/util"
 	"log"
 	"os"
 	"strings"
@@ -14,6 +8,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gorilla/feeds"
+
+	"vnbr.de/rssbridge/internal/processing/ebay"
+	kleinanzeigen "vnbr.de/rssbridge/internal/processing/kleinanzeigen"
+	"vnbr.de/rssbridge/internal/processing/printables"
+	shopware "vnbr.de/rssbridge/internal/processing/shopware"
+	"vnbr.de/rssbridge/internal/processing/thangs"
+	"vnbr.de/rssbridge/internal/util"
 )
 
 type Item struct {

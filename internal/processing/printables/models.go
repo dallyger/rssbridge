@@ -1,13 +1,14 @@
 package printables
 
 import (
-	"dallyger/rssbridge/internal/util"
 	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
+
+	"vnbr.de/rssbridge/internal/util"
 )
 
 func SearchModels(ordering string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {

@@ -1,4 +1,4 @@
-module dallyger/rssbridge
+module vnbr.de/rssbridge
 
 go 1.22.0
 
