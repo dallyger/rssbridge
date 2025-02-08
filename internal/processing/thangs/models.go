@@ -2,6 +2,7 @@ package thangs
 
 import (
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"strings"
@@ -98,6 +99,11 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 
 		lnk_chunks := strings.Split(lnk, "-")
 		id := lnk_chunks[len(lnk_chunks)-1]
+
+		if id == "" {
+			slog.Error("Failed extracting thangs.com model data", "title", title, "url", lnk)
+			return
+		}
 
 		feed.Items = append(feed.Items, &feeds.Item{
 			Id:    id,
