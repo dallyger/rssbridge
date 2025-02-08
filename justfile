@@ -9,7 +9,7 @@ help:
 
 # build binaries
 build:
-	go build -o ./bin/rssbridge ./cmd/rssbridge
+	go build -o ./bin/rssbridge .
 
 # build image
 [group("docker")]

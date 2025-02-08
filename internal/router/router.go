@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"log"
@@ -25,7 +25,7 @@ type Item struct {
 	Created string
 }
 
-func main() {
+func Run() {
 	app := fiber.New(fiber.Config{
 		ProxyHeader: fiber.HeaderXForwardedFor,
 		EnableTrustedProxyCheck: true,
