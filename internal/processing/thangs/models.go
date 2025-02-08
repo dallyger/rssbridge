@@ -5,8 +5,10 @@ import (
 	"log/slog"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
 
@@ -93,12 +95,17 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	})
 
 	c.OnHTML("section.model-card", func(h *colly.HTMLElement) {
+		var id string
+		var lnk string
 		title := h.DOM.Find("h4").First().Text()
 		desc, _ := h.DOM.Html()
-		lnk := h.DOM.Find("a").Eq(1).AttrOr("href", "")
 
-		lnk_chunks := strings.Split(lnk, "-")
-		id := lnk_chunks[len(lnk_chunks)-1]
+		h.DOM.Find("a").Each(func(i int, s *goquery.Selection) {
+			if id == "" && modelIdFromUrl(s.AttrOr("href", "")) != "" {
+				id = modelIdFromUrl(s.AttrOr("href", ""))
+				lnk = s.AttrOr("href", "")
+			}
+		})
 
 		if id == "" {
 			slog.Error("Failed extracting thangs.com model data", "title", title, "url", lnk)
@@ -118,6 +125,22 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	c.Visit(uri.String())
 
 	return feed, feedErr
+}
+
+func modelIdFromUrl(lnk string) string {
+	lnk_chunks := strings.Split(lnk, "-")
+
+	if len(lnk_chunks) == 1 {
+		return ""
+	}
+
+	id := lnk_chunks[len(lnk_chunks)-1]
+
+	if _, err := strconv.Atoi(id); err == nil && len(id) > 0 {
+		return id
+	}
+
+	return ""
 }
 
 // vim: noexpandtab
