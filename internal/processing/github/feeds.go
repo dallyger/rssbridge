@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/gorilla/feeds"
 	"vnbr.de/rssbridge/internal/util"
@@ -36,11 +37,6 @@ func NotificationFeed(token string, ctx *util.ScrapeCtx) (feed *feeds.Feed, err 
 
 	for _, notif := range notifs {
 		status, resp, err = Request("GET", notif.Subject.Url, token, ctx)
-		var str interface{}
-		if err := json.Unmarshal(resp, &str); err != nil {
-			return feed, fmt.Errorf("github.com: parse json: %s", err)
-		}
-
 		switch notif.Subject.Type {
 		case "Discussion":
 			dis := Issue{}
@@ -116,13 +112,18 @@ func NotificationFeed(token string, ctx *util.ScrapeCtx) (feed *feeds.Feed, err 
 
 	}
 
-	feed = &feeds.Feed{
-		Title: "github.com notifications",
-		Link:  &feeds.Link{Href: "https://github.com/notifications"},
-		Updated: slices.MaxFunc(feed.Items, func(a *feeds.Item, b *feeds.Item) int {
+	updated := time.Now()
+	if len(feed.Items) > 0 {
+		updated = slices.MaxFunc(feed.Items, func(a *feeds.Item, b *feeds.Item) int {
 			return a.Updated.Compare(b.Updated)
-		}).Updated,
-		Items: feed.Items,
+		}).Updated
+	}
+
+	feed = &feeds.Feed{
+		Items:   feed.Items,
+		Link:    &feeds.Link{Href: "https://github.com/notifications"},
+		Title:   "github.com notifications",
+		Updated: updated,
 	}
 
 	return
