@@ -13,10 +13,10 @@ import (
 	"vnbr.de/rssbridge/internal/util"
 )
 
-func NotificationFeed(token string, ctx *util.ScrapeCtx) (feed *feeds.Feed, err error) {
+func NotificationFeed(ctx *util.ScrapeCtx) (feed *feeds.Feed, err error) {
 	feed = &feeds.Feed{}
 
-	status, resp, err := Request("GET", "https://api.github.com/notifications", token, ctx)
+	status, resp, err := Request("GET", "https://api.github.com/notifications", ctx)
 
 	if err != nil {
 		return
@@ -36,7 +36,7 @@ func NotificationFeed(token string, ctx *util.ScrapeCtx) (feed *feeds.Feed, err 
 	}
 
 	for _, notif := range notifs {
-		status, resp, err = Request("GET", notif.Subject.Url, token, ctx)
+		status, resp, err = Request("GET", notif.Subject.Url, ctx)
 		switch notif.Subject.Type {
 		case "Discussion":
 			dis := Issue{}

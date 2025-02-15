@@ -55,7 +55,7 @@ func Run() {
 
 	app.Get("/github.com/notifications.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
-			return github.NotificationFeed(c.Query("token"), ctx)
+			return github.NotificationFeed(ctx)
 		}),
 	)
 
@@ -143,6 +143,7 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 			InboundIP: ip,
 			InboundHost: string(c.Context().Host()),
 			InboundProto: c.Protocol(),
+			Token: c.Query("token", string(c.Request().URI().Password())),
 		}
 
 		feed_type := strings.ToLower(c.Params("ext", "rss"))

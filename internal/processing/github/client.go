@@ -8,7 +8,7 @@ import (
 	"vnbr.de/rssbridge/internal/util"
 )
 
-func Request(method string, url string, token string, ctx *util.ScrapeCtx) (status int, body []byte, err error) {
+func Request(method string, url string, ctx *util.ScrapeCtx) (status int, body []byte, err error) {
 
 	req, err := http.NewRequest(method, url, nil)
 
@@ -16,7 +16,7 @@ func Request(method string, url string, token string, ctx *util.ScrapeCtx) (stat
 		return
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", ctx.Token))
 	req.Header.Set("User-Agent", util.UserAgent())
 	req.Header.Set("X-Forwarded-For", ctx.InboundIP)
 	req.Header.Set("X-Forwarded-Host", ctx.InboundHost)

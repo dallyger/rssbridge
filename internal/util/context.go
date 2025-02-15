@@ -1,8 +1,8 @@
 package util
 
 type ScrapeCtx struct {
-    InboundIP string
-    InboundHost string
-    InboundProto string
+	InboundIP    string
+	InboundHost  string
+	InboundProto string
+	Token        string
 }
-
