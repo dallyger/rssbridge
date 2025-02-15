@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/feeds"
 
 	"vnbr.de/rssbridge/internal/processing/ebay"
+	"vnbr.de/rssbridge/internal/processing/github"
 	kleinanzeigen "vnbr.de/rssbridge/internal/processing/kleinanzeigen"
 	"vnbr.de/rssbridge/internal/processing/printables"
 	shopware "vnbr.de/rssbridge/internal/processing/shopware"
@@ -49,6 +50,12 @@ func Run() {
 	app.Get("/ebay.de.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			return ebay.SearchDE(c.Query("query"), ctx)
+		}),
+	)
+
+	app.Get("/github.com/notifications.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return github.NotificationFeed(c.Query("token"), ctx)
 		}),
 	)
 
