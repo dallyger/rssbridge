@@ -2,6 +2,7 @@ package router
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -155,6 +156,11 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 
 		if err != nil {
 			log.Print(err)
+			return c.SendStatus(500)
+		}
+
+		if feed == nil {
+			slog.Error("Feed handler returned nil")
 			return c.SendStatus(500)
 		}
 
