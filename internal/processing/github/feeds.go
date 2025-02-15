@@ -107,7 +107,15 @@ func NotificationFeed(token string, ctx *util.ScrapeCtx) (feed *feeds.Feed, err 
 			})
 
 		default:
-			slog.Warn("github.com: skip notification of unknown type", "type", notif.Subject.Type)
+			slog.Warn("github.com: parse notification of unknown type", "type", notif.Subject.Type)
+			title := fmt.Sprintf("%s (%s: %s)", notif.Subject.Title, notif.Subject.Type, notif.Repository.Full_name)
+			feed.Add(&feeds.Item{
+				Content:     title + "\n\nDescription unavailable.\nUnsupported notification type.",
+				Description: notif.Subject.Title,
+				Id:          notif.Id,
+				Title:       title,
+				Updated:     notif.Updated_at.Time,
+			})
 		}
 
 	}
