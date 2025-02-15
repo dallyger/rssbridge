@@ -7,6 +7,12 @@ docker-image := env("DOCKER_IMAGE", user/name)
 help:
     @just --list
 
+# run an auto reloading development instance
+[unix]
+dev:
+	@just _require_executable entr
+	while sleep .2; do find internal main.go | entr -c -d -r go run .; done
+
 # build binaries
 build:
 	go build -o ./bin/rssbridge .
@@ -32,3 +38,14 @@ do-run:
 do-publish:
 	docker tag {{docker-image}}:nightly {{docker-image}}:latest
 	docker push {{docker-image}}:latest
+
+[private]
+[unix]
+_require_executable cmd:
+	#!/bin/sh
+	if ! type "{{cmd}}" > /dev/null; then
+		printf "\033[31merror:\033[0m command \`\033[32m%s\033[0m\` not found. Check if it is installed and available in your \$PATH.\n" "{{cmd}}" >&2
+		exit 1
+	fi
+
+# vi: noet
