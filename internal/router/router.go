@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/feeds"
 
 	"vnbr.de/rssbridge/internal/processing/ebay"
+	"vnbr.de/rssbridge/internal/processing/forgejo"
 	"vnbr.de/rssbridge/internal/processing/github"
 	kleinanzeigen "vnbr.de/rssbridge/internal/processing/kleinanzeigen"
 	"vnbr.de/rssbridge/internal/processing/printables"
@@ -48,9 +49,27 @@ func Run() {
 		})
 	})
 
+	app.Get("/codeberg.org/notifications.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return forgejo.NotificationFeed(ctx, "codeberg.org")
+		}),
+	)
+
 	app.Get("/ebay.de.:ext", createFeedResponse(
 		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			return ebay.SearchDE(c.Query("query"), ctx)
+		}),
+	)
+
+	app.Get("/forgejo/:domain/notifications.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return forgejo.NotificationFeed(ctx, c.Query("domain"))
+		}),
+	)
+
+	app.Get("/gitea.com/notifications.:ext", createFeedResponse(
+		func (c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
+			return forgejo.NotificationFeed(ctx, "gitea.com")
 		}),
 	)
 
