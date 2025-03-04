@@ -116,7 +116,7 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			Id:    id,
 			Title: title,
 			Link: &feeds.Link{
-				Href: fmt.Sprintf("https://www.thangs.com%s", lnk),
+				Href: fmt.Sprintf("https://thangs.com%s", lnk),
 			},
 			Description: desc,
 		})
