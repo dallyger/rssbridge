@@ -9,9 +9,10 @@ help:
 
 # run an auto reloading development instance
 [unix]
-dev:
+[positional-arguments]
+dev *args:
 	@just _require_executable entr
-	while sleep .2; do find internal main.go | entr -c -d -r go run .; done
+	while sleep .2; do find internal main.go | entr -c -d -r go run . -- "$@"; done
 
 # build binaries
 build:
