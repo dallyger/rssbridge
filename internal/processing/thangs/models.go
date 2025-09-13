@@ -90,6 +90,7 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 		}
 
 		if lnk := h.DOM.AttrOr("href", ""); lnk != "" {
+			slog.Debug("thangs.com - follow pagination", "url", lnk)
 			c.Visit(h.Request.AbsoluteURL(lnk))
 		}
 	})
@@ -107,8 +108,10 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			}
 		})
 
-		if id == "" {
-			slog.Error("Failed extracting thangs.com model data", "title", title, "url", lnk)
+		slog.Debug("thangs.com - found entry", "id", id, "title", title)
+
+		if id == "" || title == "" || lnk == "" {
+			slog.Error("thangs.com - meta parse failure", "id", id, "title", title, "url", lnk)
 			return
 		}
 
