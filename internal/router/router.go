@@ -1,8 +1,8 @@
 package router
 
 import (
+	"errors"
 	"log"
-	"log/slog"
 	"os"
 	"strings"
 
@@ -174,13 +174,13 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 		feed, err := handler(c, ctx)
 
 		if err != nil {
-			log.Print(err)
-			return c.SendStatus(500)
+			c.Status(500)
+			return err
 		}
 
 		if feed == nil {
-			slog.Error("Feed handler returned nil")
-			return c.SendStatus(500)
+			c.Status(500)
+			return errors.New("Empty feed")
 		}
 
 		var response string
@@ -194,12 +194,12 @@ func createFeedResponse(handler func(c *fiber.Ctx, ctx *util.ScrapeCtx) (*feeds.
 			case "json":
 			response, feed_err = feed.ToJSON()
 			default:
-			c.SendStatus(404)
+			c.Status(404)
 		}
 
 		if feed_err != nil {
-			log.Print(err)
-			return c.SendStatus(500)
+			c.Status(500)
+			return err
 		}
 
 		return c.SendString(response)
