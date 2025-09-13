@@ -38,7 +38,7 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	uri := &url.URL{
 		Scheme: "https",
 		Host:   "thangs.com",
-		Path:   "",
+		Path:   "browse",
 		RawQuery: url.Values{
 			"sort": {sort},
 		}.Encode(),
