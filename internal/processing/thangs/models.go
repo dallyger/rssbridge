@@ -1,6 +1,7 @@
 package thangs
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/url"
@@ -96,15 +97,19 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	})
 
 	c.OnHTML("section.model-card", func(h *colly.HTMLElement) {
-		var id string
 		var lnk string
+		id := h.Attr("data-id")
 		title := h.DOM.Find("h4").First().Text()
 		desc, _ := h.DOM.Html()
 
 		h.DOM.Find("a").Each(func(i int, s *goquery.Selection) {
-			if id == "" && modelIdFromUrl(s.AttrOr("href", "")) != "" {
-				id = modelIdFromUrl(s.AttrOr("href", ""))
-				lnk = s.AttrOr("href", "")
+			lnk = s.AttrOr("href", "")
+			meta, metaErr := urlToMeta(lnk)
+			if id == "" && metaErr == nil {
+				id = meta.id
+			}
+			if title == "" && metaErr == nil {
+				title = meta.title
 			}
 		})
 
@@ -130,20 +135,46 @@ func Models(sort string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 	return feed, feedErr
 }
 
-func modelIdFromUrl(lnk string) string {
-	lnk_chunks := strings.Split(lnk, "-")
+type urlMeta struct {
+	id string
+	title string
+}
 
-	if len(lnk_chunks) == 1 {
-		return ""
+func urlToMeta(lnk string) (urlMeta, error) {
+	// drop query params
+	chunks := strings.Split(lnk, "?")
+	lnk = chunks[0]
+
+	// the last part of the path is the url-encoded title and id
+	chunks = strings.Split(lnk, "/")
+	title := chunks[len(chunks)-1]
+
+	// extract id
+	chunks = strings.Split(lnk, "-")
+	id := chunks[len(chunks)-1]
+
+	// if the last segment does not contain a dash, then there is no id
+	if len(chunks) == 1 {
+		return urlMeta{}, errors.New("Not a valid model URL")
 	}
 
-	id := lnk_chunks[len(lnk_chunks)-1]
-
-	if _, err := strconv.Atoi(id); err == nil && len(id) > 0 {
-		return id
+	if _, err := strconv.Atoi(id); err != nil || len(id) == 0 {
+		return urlMeta{}, errors.New("Not a valid model URL")
 	}
 
-	return ""
+	// drop the id segment
+	// may drop too much, but good enough for now (title ends with numbers)
+	title = strings.TrimRight(title, "-0123456789")
+
+	// try to url-decode
+	if decoded, err := url.PathUnescape(title); err == nil {
+		title = decoded
+	}
+
+	return urlMeta{
+		id: id,
+		title: title,
+	}, nil
 }
 
 // vim: noexpandtab
