@@ -73,9 +73,11 @@ func NotificationFeed(ctx *util.ScrapeCtx, domain string) (feed *feeds.Feed, err
 				}
 			}
 			// No comment
+			// TODO: fetch issue description
 			feed.Add(&feeds.Item{
 				Id:      id,
 				Title:   title,
+				Link:    &feeds.Link{Href: notif.Subject.HtmlUrl},
 				Updated: notif.UpdatedAt.Time,
 			})
 
