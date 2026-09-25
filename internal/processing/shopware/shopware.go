@@ -3,6 +3,7 @@ package shopware
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/gocolly/colly"
 	"github.com/gorilla/feeds"
@@ -56,15 +57,38 @@ func StorePluginChangelog(id string, ctx *util.ScrapeCtx) (*feeds.Feed, error) {
 			log.Fatal(err)
 		}
 		feed.Items = append(feed.Items, &feeds.Item{
-			Id: h.Text,
-			Title: h.Text,
+			Id: pluginChangelogId(h.Text),
+			Title: pluginChangelogTitle(h.Text),
 			Link: &feeds.Link{Href: url},
-			Description: desc,
+			Description: strings.TrimSpace(desc),
 		})
 	});
 	c.Visit(url);
 
 	return feed, feedErr
+}
+
+func pluginChangelogId(text string) string {
+	chunks := strings.Split(pluginChangelogTitle(text), " ")
+
+	if len(chunks) == 0 {
+		return ""
+	}
+
+	return chunks[0]
+}
+
+func pluginChangelogTitle(text string) string {
+	buf := []string{}
+
+	for line := range strings.Lines(text) {
+		fields := strings.Fields(line)
+		if len(fields) != 0 {
+			buf = append(buf, strings.Join(fields, " "))
+		}
+	}
+
+	return strings.Join(buf, " | ")
 }
 
 // vim: noexpandtab
